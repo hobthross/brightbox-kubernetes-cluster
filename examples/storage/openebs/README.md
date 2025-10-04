@@ -6,7 +6,7 @@ Persistent Volumes that are available to pods across all worker nodes.
 
 ### Automatic Installation
 
-Set the `storage_system` variable to `openebs` to install the OpenEBS maangement system and ensure
+Set the `storage_system` variable to `openebs` to install the OpenEBS management system and ensure
 all the storage partitions are mounted in the correct position.
 
 
@@ -68,7 +68,7 @@ spec:
 ```
 
 See the [OpenEBS user guide](https://docs.openebs.io/docs/next/uglocalpv.html) for more details on Local PVs and how to
-e ackup and restore volumes
+backup and restore volumes
 
 ### JIVA Volumes
 
