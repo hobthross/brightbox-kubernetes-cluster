@@ -3,6 +3,6 @@
 # area on the current workstation
 set -e
 mkdir -p "${HOME}/.kube"
-scp "ubuntu@$(terraform output -raw bastion):.kube/config" "${HOME}/.kube/config"
-sed -i.orig "s/https:.*$/https:\/\/$(terraform output -raw master):6443/" "${HOME}/.kube/config"
+scp "ubuntu@$(tofu output -raw bastion):.kube/config" "${HOME}/.kube/config"
+sed -i.orig "s/https:.*$/https:\/\/$(tofu output -raw master):6443/" "${HOME}/.kube/config"
 rm "${HOME}/.kube/config.orig"
