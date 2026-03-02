@@ -154,6 +154,12 @@ CLIENTSCRIPT
         sudo chmod 755 /usr/local/bin/generate-client-cert.sh
 }
 
+install_network_controllers() {
+    curl -Lsf "https://raw.githubusercontent.com/projectcalico/calico/v${calico_release}/manifests/calico-vxlan.yaml" |
+        sed 's/"type": "calico-ipam"/&,"assign_ipv4":"true","assign_ipv6":"true"/' |
+        kubectl apply -f -
+}
+
 ensure_ancillary_items() {
         #echo "Patching kube-proxy scheduling tolerations"
         #if ! kubectl -n kube-system patch ds kube-proxy -p='{ "spec": { "template": { "metadata": { "annotations": { "scheduler.alpha.kubernetes.io/critical-pod": "" } }, "spec": { "priorityClassName": "system-node-critical", "tolerations": [{ "key": "CriticalAddonsOnly", "operator": "Exists" }, { "operator": "Exists" }] } } } }'
@@ -189,9 +195,7 @@ MANIFEST
         esac
 
         echo "Installing Calico network controllers"
-        retry 5 curl -Lsf "https://raw.githubusercontent.com/projectcalico/calico/v${calico_release}/manifests/calico-vxlan.yaml" |
-            sed 's/"type": "calico-ipam"/&,"assign_ipv4":"true","assign_ipv6":"true"/' |
-            kubectl apply -f -
+        retry 5 install_network_controllers
 
         echo "Setting IP/IPv6 autodetect"
         retry 5 kubectl set env daemonset/calico-node -n kube-system -c calico-node \
