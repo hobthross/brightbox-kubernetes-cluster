@@ -11,7 +11,7 @@ create_kubeadm_config() {
         1.3[0].*)
             v1beta3
             ;;
-        1.3[12].*)
+        1.3[12345].*)
             v1beta4
             ;;
         *)
