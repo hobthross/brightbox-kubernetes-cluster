@@ -25,8 +25,15 @@ seconds..."
 
 install_cloud_controller() {
         kubeadm token delete "${boot_token}" || true
-        local join_command_b64=$(kubeadm token create "${boot_token}" --ttl 0 --description 'Cluster autoscaling token' --print-join-command 2>/dev/null | tr -d '\n\r' | base64 --wrap=0)
+        local join_command_b64
+        local server_url
         local controller_key_name=brightbox-credentials
+        join_command_b64=$(kubeadm token create "${boot_token}" --ttl 0 --description 'Cluster autoscaling token' --print-join-command 2>/dev/null | tr -d '\n\r' | base64 --wrap=0)
+        if [[ -n "${public_ip}" && "${public_ip}" == *:* ]]; then
+            server_url=https://[${public_ip}]:${service_port}
+        else
+            server_url=https://${public_ip}:${service_port}
+        fi
 
         cat <<EOF > "$HOME/install/cloud-controller.yml"
 ---
@@ -234,7 +241,7 @@ data:
     clusters:
     - cluster:
         certificate-authority: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-        server: https://[${public_ip}]:${service_port}
+        server: $${server_url}
       name: default
     contexts:
     - context:
