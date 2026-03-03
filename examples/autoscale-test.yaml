@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: autoscale-test
+  namespace: default
+  labels:
+    app: autoscale-test
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: autoscale-test
+  template:
+    metadata:
+      labels:
+        app: autoscale-test
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - autoscale-test
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: sleeper
+        image: busybox
+        command:
+        - sleep
+        - "3600"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "64Mi"
+          limits:
+            cpu: "200m"
+            memory: "128Mi"
+      terminationGracePeriodSeconds: 5
