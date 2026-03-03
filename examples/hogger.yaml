@@ -1,0 +1,70 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: hogger
+  labels:
+    name: hogger
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: hogger
+  namespace: hogger
+spec:
+  limits:
+  - default:
+      memory: 100Mi
+      cpu: 100m
+    defaultRequest:
+      memory: 50Mi
+      cpu: 50m
+    type: Container
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hogger
+  namespace: hogger
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hogger
+  template:
+    metadata:
+      labels:
+        app: hogger
+    spec:
+      containers:
+        - image: busybox
+          imagePullPolicy: Always
+          name: hogger
+          command: ['/bin/sh']
+          args: ["-c", "while true; do :; done"]
+          resources:
+            requests:
+              memory: "10Mi"
+              cpu: "100m"
+            limits:
+              cpu: "1"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  annotations:
+  name: hogger
+  namespace: hogger
+spec:
+  maxReplicas: 20
+  minReplicas: 4
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        averageUtilization: 80
+        type: Utilization
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: hogger
