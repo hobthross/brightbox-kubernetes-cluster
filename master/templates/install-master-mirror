@@ -260,8 +260,8 @@ upgrade() {
 	sudo apt-mark hold kubelet kubectl
 	retry 5 sudo systemctl restart kubelet
 
-    echo "Adjusting taints until better tolerated"
-    kubectl taint node -l node-role.kubernetes.io/control-plane='' node-role.kubernetes.io/control-plane:NoSchedule- || true
+    echo "Ensuring NoSchedule taint on control plane"
+    kubectl taint nodes "$${HOSTNAME}" node-role.kubernetes.io/control-plane:NoSchedule --overwrite
 }
 
 if ss -lnt | grep -q :6443

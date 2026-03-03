@@ -161,14 +161,8 @@ install_network_controllers() {
 }
 
 ensure_ancillary_items() {
-        #echo "Patching kube-proxy scheduling tolerations"
-        #if ! kubectl -n kube-system patch ds kube-proxy -p='{ "spec": { "template": { "metadata": { "annotations": { "scheduler.alpha.kubernetes.io/critical-pod": "" } }, "spec": { "priorityClassName": "system-node-critical", "tolerations": [{ "key": "CriticalAddonsOnly", "operator": "Exists" }, { "operator": "Exists" }] } } } }'
-        #then
-        #        echo "Patch already applied - skipping"
-        #fi
-
-        #echo "Adjusting taints until better tolerated"
-        #kubectl taint node -l node-role.kubernetes.io/control-plane='' node-role.kubernetes.io/control-plane:NoSchedule- || true
+        echo "Ensuring NoSchedule taint on control plane"
+        kubectl taint nodes "$${HOSTNAME}" node-role.kubernetes.io/control-plane:NoSchedule --overwrite
 
         echo "Refreshing Pod Disruption Budget for kube-dns"
         retry 5 kubectl apply -f - <<-MANIFEST
