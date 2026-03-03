@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/instance: "release"
     app.kubernetes.io/name: "brightbox-cluster-autoscaler"
     app.kubernetes.io/managed-by: "Helm"
-    helm.sh/chart: "cluster-autoscaler-9.28.0"
+    helm.sh/chart: "cluster-autoscaler-9.40.0"
   name: release-brightbox-cluster-autoscaler
   namespace: kube-system
 spec:
@@ -28,7 +28,7 @@ metadata:
     app.kubernetes.io/instance: "release"
     app.kubernetes.io/name: "brightbox-cluster-autoscaler"
     app.kubernetes.io/managed-by: "Helm"
-    helm.sh/chart: "cluster-autoscaler-9.28.0"
+    helm.sh/chart: "cluster-autoscaler-9.40.0"
   name: release-brightbox-cluster-autoscaler
   namespace: kube-system
 automountServiceAccountToken: true
@@ -41,7 +41,7 @@ metadata:
     app.kubernetes.io/instance: "release"
     app.kubernetes.io/name: "brightbox-cluster-autoscaler"
     app.kubernetes.io/managed-by: "Helm"
-    helm.sh/chart: "cluster-autoscaler-9.28.0"
+    helm.sh/chart: "cluster-autoscaler-9.40.0"
   name: release-brightbox-cluster-autoscaler
 rules:
   - apiGroups:
@@ -80,6 +80,8 @@ rules:
     verbs:
     - watch
     - list
+    - create
+    - delete
     - get
     - update
   - apiGroups:
@@ -158,6 +160,7 @@ rules:
     verbs:
       - list
       - watch
+      - get
   - apiGroups:
     - coordination.k8s.io
     resources:
@@ -182,7 +185,7 @@ metadata:
     app.kubernetes.io/instance: "release"
     app.kubernetes.io/name: "brightbox-cluster-autoscaler"
     app.kubernetes.io/managed-by: "Helm"
-    helm.sh/chart: "cluster-autoscaler-9.28.0"
+    helm.sh/chart: "cluster-autoscaler-9.40.0"
   name: release-brightbox-cluster-autoscaler
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -201,7 +204,7 @@ metadata:
     app.kubernetes.io/instance: "release"
     app.kubernetes.io/name: "brightbox-cluster-autoscaler"
     app.kubernetes.io/managed-by: "Helm"
-    helm.sh/chart: "cluster-autoscaler-9.28.0"
+    helm.sh/chart: "cluster-autoscaler-9.40.0"
   name: release-brightbox-cluster-autoscaler
   namespace: kube-system
 rules:
@@ -230,7 +233,7 @@ metadata:
     app.kubernetes.io/instance: "release"
     app.kubernetes.io/name: "brightbox-cluster-autoscaler"
     app.kubernetes.io/managed-by: "Helm"
-    helm.sh/chart: "cluster-autoscaler-9.28.0"
+    helm.sh/chart: "cluster-autoscaler-9.40.0"
   name: release-brightbox-cluster-autoscaler
   namespace: kube-system
 roleRef:
@@ -250,7 +253,7 @@ metadata:
     app.kubernetes.io/instance: "release"
     app.kubernetes.io/name: "brightbox-cluster-autoscaler"
     app.kubernetes.io/managed-by: "Helm"
-    helm.sh/chart: "cluster-autoscaler-9.28.0"
+    helm.sh/chart: "cluster-autoscaler-9.40.0"
   name: release-brightbox-cluster-autoscaler
   namespace: kube-system
 spec:
@@ -274,11 +277,12 @@ metadata:
     app.kubernetes.io/instance: "release"
     app.kubernetes.io/name: "brightbox-cluster-autoscaler"
     app.kubernetes.io/managed-by: "Helm"
-    helm.sh/chart: "cluster-autoscaler-9.28.0"
+    helm.sh/chart: "cluster-autoscaler-9.40.0"
   name: release-brightbox-cluster-autoscaler
   namespace: kube-system
 spec:
   replicas: 1
+  revisionHistoryLimit: 10
   selector:
     matchLabels:
       app.kubernetes.io/instance: "release"
@@ -309,6 +313,14 @@ spec:
             - --stderrthreshold=info
             - --v=2
           env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: SERVICE_ACCOUNT
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
           envFrom:
             - secretRef:
                 name: brightbox-credentials
