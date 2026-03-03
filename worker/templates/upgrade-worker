@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -eu
 APT_GET="sudo DEBIAN_FRONTEND=noninteractive NEEDRESTART_SUSPEND=1 apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -qq -y"
 
 # Retries a command on failure.
@@ -69,7 +69,9 @@ $${APT_GET} install debconf-utils lvm2 nfs-common
 echo "docker.io docker.io/restart select true" | sudo debconf-set-selections
 # Upgrade cri-tools before upgrading kubeadm to avoid CRI API incompatibility
 echo "Upgrading cri-tools"
-if ! cri_rel=$(apt-cache madison "cri-tools" | grep -Po -m 1 "(?<= )${critools_release}[^ ]*")
+cri_rel=""
+cri_rel=$(apt-cache madison "cri-tools" | grep -Po -m 1 "(?<= )${critools_release}[^ ]*")
+if [ -z "$${cri_rel}" ]
 then
     cri_rel="${critools_release}"
 fi
@@ -82,7 +84,9 @@ then
 fi
 sudo apt-mark hold cri-tools
 echo "Upgrading kubeadm"
-if ! kube_rel=$(apt-cache madison "kubeadm" | grep -Po -m 1 "(?<= )${kubernetes_release}[^ ]*")
+kube_rel=""
+kube_rel=$(apt-cache madison "kubeadm" | grep -Po -m 1 "(?<= )${kubernetes_release}[^ ]*")
+if [ -z "$${kube_rel}" ]
 then
     kube_rel="${kubernetes_release}"
 fi

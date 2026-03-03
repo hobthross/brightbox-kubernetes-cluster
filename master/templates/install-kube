@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -eu
 
 # Retries a command on failure.
 # $1 - the max number of attempts
@@ -106,11 +106,19 @@ runtime-endpoint: unix:///run/containerd/containerd.sock
 EOF
 fi
 
-echo "Making time sync run more often"
-cat <<EOF | sudo tee /etc/systemd/timesyncd.conf
+echo "Checking if systemd-timesyncd is active"
+
+if systemctl is-active --quiet systemd-timesyncd.service; then
+    echo "systemd-timesyncd is active; applying more frequent polling configuration"
+
+    echo "Making time sync run more often"
+    cat <<EOF | sudo tee /etc/systemd/timesyncd.conf
 [Time]
 PollIntervalMaxSec=1024
 EOF
 
-echo "Restarting reconfigured services"
-sudo systemctl try-restart systemd-timesyncd
+    echo "Restarting reconfigured service"
+    sudo systemctl try-restart systemd-timesyncd.service
+else
+    echo "systemd-timesyncd is not active; no changes applied (Chrony or another service is in use)"
+fi
