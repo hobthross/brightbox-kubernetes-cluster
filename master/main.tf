@@ -246,19 +246,19 @@ resource "null_resource" "k8s_master_mirrors_configure" {
 
   provisioner "remote-exec" {
     inline = [
-  templatefile("${local.template_path}/install-master-mirror", {
-    kubernetes_release        = var.kubernetes_release,
-    critools_release          = var.critools_release,
-    cluster_fqdn              = local.cluster_fqdn,
-    public_fqdn               = local.public_fqdn,
-    boot_token                = local.boot_token
-    fqdn                      = local.public_fqdn
-    certificate_authority_pem = var.ca_cert_pem
-    master_certificate_key    = random_id.master_certificate_key.hex,
-    advertise_ip              = local.mirrors_ipv4[count.index]
-    service_port              = var.apiserver_service_port
-    }
-  ),
+      templatefile("${local.template_path}/install-master-mirror", {
+        kubernetes_release        = var.kubernetes_release,
+        critools_release          = var.critools_release,
+        cluster_fqdn              = local.cluster_fqdn,
+        public_fqdn               = local.public_fqdn,
+        boot_token                = local.boot_token
+        fqdn                      = local.public_fqdn
+        certificate_authority_pem = var.ca_cert_pem
+        master_certificate_key    = random_id.master_certificate_key.hex,
+        advertise_ip              = local.mirrors_ipv4[count.index]
+        service_port              = var.apiserver_service_port
+        }
+      ),
     ]
   }
 }
