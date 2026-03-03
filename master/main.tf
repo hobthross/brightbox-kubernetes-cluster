@@ -225,10 +225,11 @@ resource "null_resource" "k8s_master_mirrors_configure" {
   count = length(local.mirrors_hostnames)
 
   triggers = {
-    cert_key    = random_id.master_certificate_key.hex
-    mirror_id   = local.mirrors_hostnames[count.index]
-    k8s_release = var.kubernetes_release
-    cert_change = var.ca_cert_pem
+    cert_key      = random_id.master_certificate_key.hex
+    mirror_id     = local.mirrors_hostnames[count.index]
+    mirror_script = local.mirror_provisioner_script_trigger
+    k8s_release   = var.kubernetes_release
+    cert_change   = var.ca_cert_pem
   }
 
   connection {
@@ -245,19 +246,19 @@ resource "null_resource" "k8s_master_mirrors_configure" {
 
   provisioner "remote-exec" {
     inline = [
-      templatefile("${local.template_path}/install-master-mirror", {
-        kubernetes_release        = var.kubernetes_release,
-        critools_release          = var.critools_release,
-        cluster_fqdn              = local.cluster_fqdn,
-        public_fqdn               = local.public_fqdn,
-        boot_token                = local.boot_token
-        fqdn                      = local.public_fqdn
-        certificate_authority_pem = var.ca_cert_pem
-        master_certificate_key    = random_id.master_certificate_key.hex,
-        advertise_ip              = local.mirrors_ipv4[count.index]
-        service_port              = var.apiserver_service_port
-        }
-      ),
+  templatefile("${local.template_path}/install-master-mirror", {
+    kubernetes_release        = var.kubernetes_release,
+    critools_release          = var.critools_release,
+    cluster_fqdn              = local.cluster_fqdn,
+    public_fqdn               = local.public_fqdn,
+    boot_token                = local.boot_token
+    fqdn                      = local.public_fqdn
+    certificate_authority_pem = var.ca_cert_pem
+    master_certificate_key    = random_id.master_certificate_key.hex,
+    advertise_ip              = local.mirrors_ipv4[count.index]
+    service_port              = var.apiserver_service_port
+    }
+  ),
     ]
   }
 }
@@ -328,6 +329,21 @@ locals {
     service_port       = var.apiserver_service_port,
     storage_system     = var.storage_system,
     manage_autoscaler  = var.manage_autoscaler,
+    }
+  )
+
+  # Dummy script to test for changes
+  mirror_provisioner_script_trigger = templatefile("${local.template_path}/install-master-mirror", {
+    kubernetes_release        = var.kubernetes_release,
+    critools_release          = var.critools_release,
+    cluster_fqdn              = local.cluster_fqdn,
+    public_fqdn               = local.public_fqdn,
+    boot_token                = local.boot_token
+    fqdn                      = local.public_fqdn
+    certificate_authority_pem = var.ca_cert_pem
+    master_certificate_key    = random_id.master_certificate_key.hex,
+    advertise_ip              = "127.0.0.1"
+    service_port              = var.apiserver_service_port
     }
   )
 
