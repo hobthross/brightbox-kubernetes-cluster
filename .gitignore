@@ -11,3 +11,8 @@ examples/metrics/*.crt
 examples/metrics/*.key
 examples/metrics/*.csr
 examples/metrics/apiservice-bundle.yaml
+#
+# added by Rachel
+#
+terraform.tfvars
+kubeconfig
