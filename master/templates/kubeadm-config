@@ -47,6 +47,16 @@ apiServer:
 clusterName: ${cluster_name}
 kubernetesVersion: "v${kubernetes_release}"
 controlPlaneEndpoint: "${public_ip}:${service_port}"
+controllerManager:
+  extraArgs:
+    bind-address: "0.0.0.0"
+scheduler:
+  extraArgs:
+    bind-address: "0.0.0.0"
+etcd:
+  local:
+    extraArgs:
+      listen-metrics-urls: "http://0.0.0.0:2381"
 networking:
   dnsDomain: ${cluster_domainname}
   podSubnet: "${cluster_cidr}"
@@ -92,6 +102,16 @@ apiServer:
 clusterName: ${cluster_name}
 kubernetesVersion: "v${kubernetes_release}"
 controlPlaneEndpoint: "${public_ip}:${service_port}"
+controllerManager:
+  extraArgs:
+    bind-address: "0.0.0.0"
+scheduler:
+  extraArgs:
+    bind-address: "0.0.0.0"
+etcd:
+  local:
+    extraArgs:
+      listen-metrics-urls: "http://0.0.0.0:2381"
 networking:
   dnsDomain: ${cluster_domainname}
   podSubnet: "${cluster_cidr}"
