@@ -317,6 +317,12 @@ upgrade() {
         echo "Deleting stale kubeadm ConfigMap and re-uploading fresh config"
         sudo kubectl --kubeconfig=/etc/kubernetes/admin.conf -n kube-system delete configmap kubeadm-config --ignore-not-found
         retry 5 sudo kubeadm init phase upload-config all --config $HOME/install/kubeadm.conf
+        echo "Regenerating control plane static pod manifests"
+        sudo kubeadm init phase control-plane all --config $HOME/install/kubeadm.conf || true
+        echo "Regenerating etcd static pod manifest"
+        sudo kubeadm init phase etcd local --config $HOME/install/kubeadm.conf || true
+        echo "Waiting for API server to be ready after manifest regeneration"
+        retry 30 sudo kubectl --kubeconfig=/etc/kubernetes/admin.conf get --raw=/healthz
 	plan=$(sudo kubeadm upgrade plan ${kubernetes_release})
 	case "$${plan}" in
 	*"kubeadm upgrade apply"*)
