@@ -326,7 +326,7 @@ upgrade() {
 	plan=$(sudo kubeadm upgrade plan ${kubernetes_release})
 	case "$${plan}" in
 	*"kubeadm upgrade apply"*)
-                retry 5 sudo kubeadm upgrade apply -y ${kubernetes_release}
+                retry 5 sudo kubeadm upgrade apply -y --ignore-preflight-errors=CreateJob ${kubernetes_release}
                 echo "Upgrading kubelet"
                 retry 5 $${APT_GET} --allow-change-held-packages --allow-downgrades install \
                         kubectl=$${kube_rel} \
@@ -339,8 +339,18 @@ upgrade() {
     *)  echo "Already at version ${kubernetes_release} or greater - refreshing certificates"
 		echo $${plan}
         retry 5 sudo kubeadm init phase upload-certs --upload-certs --config $HOME/install/kubeadm.conf
+        echo "Ensuring kubelet is at the target version"
+        retry 5 $${APT_GET} --allow-change-held-packages --allow-downgrades install \
+                kubectl=$${kube_rel} \
+                kubelet=$${kube_rel} \
+                containerd
+        sudo apt-mark hold kubelet kubectl
+        ensure_certs_in_kubelet_config
+        retry 5 sudo systemctl restart kubelet
 		;;
 	esac
+    echo "Waiting for API server to be ready after kubelet restart"
+    retry 30 sudo kubectl --kubeconfig=/etc/kubernetes/admin.conf get --raw=/healthz
     ensure_admin_config
     ensure_ancillary_items
 }
