@@ -313,6 +313,10 @@ upgrade() {
         fi
         sudo apt-mark hold kubeadm
         ensure_updated_ca
+        ensure_admin_config
+        echo "Deleting stale kubeadm ConfigMap and re-uploading fresh config"
+        sudo kubectl --kubeconfig=/etc/kubernetes/admin.conf -n kube-system delete configmap kubeadm-config --ignore-not-found
+        retry 5 sudo kubeadm init phase upload-config all --config $HOME/install/kubeadm.conf
 	plan=$(sudo kubeadm upgrade plan ${kubernetes_release})
 	case "$${plan}" in
 	*"kubeadm upgrade apply"*)

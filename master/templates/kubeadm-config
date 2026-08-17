@@ -44,19 +44,22 @@ apiServer:
   - ${public_fqdn}
   - ${public_rdns}
   - ${public_ip}
-clusterName: ${cluster_name}
-kubernetesVersion: "v${kubernetes_release}"
-controlPlaneEndpoint: "${public_ip}:${service_port}"
 controllerManager:
   extraArgs:
-    bind-address: "0.0.0.0"
+  - name: "bind-address"
+    value: "0.0.0.0"
 scheduler:
   extraArgs:
-    bind-address: "0.0.0.0"
+  - name: "bind-address"
+    value: "0.0.0.0"
 etcd:
   local:
     extraArgs:
-      listen-metrics-urls: "http://0.0.0.0:2381"
+    - name: "listen-metrics-urls"
+      value: "http://0.0.0.0:2381"
+clusterName: ${cluster_name}
+kubernetesVersion: "v${kubernetes_release}"
+controlPlaneEndpoint: "${public_ip}:${service_port}"
 networking:
   dnsDomain: ${cluster_domainname}
   podSubnet: "${cluster_cidr}"
@@ -99,9 +102,6 @@ apiServer:
   - ${public_fqdn}
   - ${public_rdns}
   - ${public_ip}
-clusterName: ${cluster_name}
-kubernetesVersion: "v${kubernetes_release}"
-controlPlaneEndpoint: "${public_ip}:${service_port}"
 controllerManager:
   extraArgs:
     bind-address: "0.0.0.0"
@@ -112,6 +112,9 @@ etcd:
   local:
     extraArgs:
       listen-metrics-urls: "http://0.0.0.0:2381"
+clusterName: ${cluster_name}
+kubernetesVersion: "v${kubernetes_release}"
+controlPlaneEndpoint: "${public_ip}:${service_port}"
 networking:
   dnsDomain: ${cluster_domainname}
   podSubnet: "${cluster_cidr}"
